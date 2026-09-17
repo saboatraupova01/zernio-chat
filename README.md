@@ -35,14 +35,12 @@ ngrok http 8000
 
 ## Настройка
 
-Создай `.env` на основе `.env.example` и укажи:
+Создайте `.env` на основе `.env.example` и укажите:
 
 ```env
 ZERNIO_API_KEY=
 ZERNIO_WEBHOOK_SECRET=
 ```
-
-Не добавляй `.env` в Git.
 
 ## Полезные команды
 
