@@ -73,11 +73,11 @@ function addMessage(message) {
     time.className = 'message-time';
 
     if (message.sent_at) {
-        time.textContent = new Date(message.sent_at)
-            .toLocaleTimeString('ru-RU', {
-                hour: '2-digit',
-                minute: '2-digit',
-            });
+        const date = new Date(message.sent_at);
+        time.textContent = date.toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     }
 
     bubble.appendChild(text);
@@ -146,14 +146,56 @@ if (conversationList) {
         });
 }
 function updateConversationItem(conversation) {
-    const item = document.querySelector(
+    let item = document.querySelector(
         `[data-conversation-id="${conversation.id}"]`
     );
 
+    // Если такого чата ещё нет в списке — создаём его
     if (!item) {
-        return;
+        item = document.createElement('a');
+
+        item.href = `/conversations/${conversation.id}`;
+        item.className = 'conversation-item';
+        item.dataset.conversationId = conversation.id;
+
+        const channelIcon =
+            conversation.channel === 'instagram'
+                ? '◎'
+                : conversation.channel === 'whatsapp'
+                    ? '☎'
+                    : '💬';
+
+        item.innerHTML = `
+            <div class="conversation-top">
+
+                <div class="avatar">
+                    ${channelIcon}
+                </div>
+
+                <div class="conversation-main">
+
+                    <div class="conversation-name">
+                        ${conversation.participant_name ?? 'Без имени'}
+                    </div>
+
+                    <div class="conversation-preview">
+                        ${conversation.channel ?? ''}
+                        ·
+                        ${conversation.status ?? ''}
+                    </div>
+
+                    <div class="conversation-assignment">
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        conversationList.prepend(item);
     }
 
+    // Обновляем назначение оператора
     const assignment = item.querySelector(
         '.conversation-assignment'
     );

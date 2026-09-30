@@ -434,58 +434,41 @@
             messages.scrollTop = messages.scrollHeight;
         }
 
-        const replyButtons = document.querySelectorAll('.reply-button');
-
+        const messagesContainer = document.querySelector('.messages');
         const replyPreview = document.querySelector('#reply-preview');
         const replyPreviewText = document.querySelector('#reply-preview-text');
         const replyToMessageId = document.querySelector('#reply-to-message-id');
         const cancelReply = document.querySelector('#cancel-reply');
         const messageInput = document.querySelector('.message-input');
 
-        replyButtons.forEach((button) => {
+        if (messagesContainer) {
+            messagesContainer.addEventListener('click', (event) => {
+                const button = event.target.closest('.reply-button');
 
-            button.addEventListener('click', () => {
+                if (!button) {
+                    return;
+                }
 
                 const messageId = button.dataset.messageId;
                 const messageText = button.dataset.messageText;
 
-                const replyPreview = document.querySelector('#reply-preview');
-                const replyPreviewText = document.querySelector('#reply-preview-text');
-                const replyToMessageId = document.querySelector('#reply-to-message-id');
-                const cancelReply = document.querySelector('#cancel-reply');
-                const messageInput = document.querySelector('.message-input');
-                const messagesContainer = document.querySelector('.messages');
+                replyToMessageId.value = messageId;
+                replyPreviewText.textContent = messageText;
 
-                if (messagesContainer) {
-                    messagesContainer.addEventListener('click', (event) => {
+                replyPreview.classList.remove('hidden');
 
-                        const button = event.target.closest('.reply-button');
+                messageInput.focus();
+            });
+        }
 
-                        if (!button) {
-                            return;
-                        }
+        if (cancelReply) {
+            cancelReply.addEventListener('click', () => {
+                replyToMessageId.value = '';
+                replyPreviewText.textContent = '';
 
-                        const messageId = button.dataset.messageId;
-                        const messageText = button.dataset.messageText;
-
-                        replyToMessageId.value = messageId;
-                        replyPreviewText.textContent = messageText;
-
-                        replyPreview.classList.remove('hidden');
-
-                        messageInput.focus();
-                    });
-                }
-
-                if (cancelReply) {
-                    cancelReply.addEventListener('click', () => {
-
-                        replyToMessageId.value = '';
-                        replyPreviewText.textContent = '';
-
-                        replyPreview.classList.add('hidden');
-                    });
-                }
+                replyPreview.classList.add('hidden');
+            });
+        }
     </script>
 
 
@@ -495,14 +478,19 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Messages
+    | Messages (Нормальные пузырьки чата)
     |--------------------------------------------------------------------------
     */
+
+    .messages {
+        display: flex;
+        flex-direction: column;
+    }
 
     .message-row {
         display: flex;
         width: 100%;
-        margin-bottom: 18px;
+        margin-bottom: 12px;
     }
 
     .customer-row {
@@ -514,8 +502,7 @@
     }
 
     .message-content {
-        width: 70%;
-        max-width: 70%;
+        max-width: 75%;
     }
 
     .customer-row .message-content {
@@ -528,35 +515,28 @@
         justify-content: flex-end;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Message with action
-    |--------------------------------------------------------------------------
-    */
-
     .message-with-action {
         display: flex;
-        align-items: center;
-        width: fit-content;
+        align-items: flex-end;
+        gap: 8px;
         max-width: 100%;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Message bubble
-    |--------------------------------------------------------------------------
-    */
+    .operator-row .message-with-action {
+        flex-direction: row-reverse; /* Кнопка ответа слева от пузырька оператора */
+    }
 
     .message-bubble {
-        max-width: 65%;
-        padding: 11px 14px;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        padding: 10px 14px;
+        border-radius: 14px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        word-break: break-word;
     }
 
     .customer-bubble {
         background: #ffffff;
         color: #252832;
+        border: 1px solid #e7e9ef;
         border-bottom-left-radius: 4px;
     }
 
@@ -566,23 +546,16 @@
         border-bottom-right-radius: 4px;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Message text
-    |--------------------------------------------------------------------------
-    */
-
     .message-text {
         font-size: 13px;
         line-height: 1.45;
         white-space: pre-wrap;
-        word-break: break-word;
     }
 
     .message-time {
-        margin-top: 5px;
+        margin-top: 4px;
         font-size: 10px;
-        opacity: .65;
+        opacity: 0.7;
         text-align: right;
     }
 
@@ -593,10 +566,9 @@
     */
 
     .reply-button {
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         flex-shrink: 0;
-        margin-left: 8px;
 
         display: flex;
         align-items: center;
@@ -608,27 +580,18 @@
         background: #f1f5f9;
         color: #64748b;
 
+        font-size: 0; /* Скрываем текст, оставляем только иконку/кнопку */
         cursor: pointer;
 
         opacity: 0;
         visibility: hidden;
-        pointer-events: none;
-
-        transition:
-            opacity .15s ease,
-            background .15s ease,
-            color .15s ease;
+        transition: opacity .15s ease, background .15s ease;
     }
 
-    .message-with-action:hover .reply-button {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-    }
-
-    .reply-button:hover {
-        background: #e2e8f0;
-        color: #2563eb;
+    /* Псевдоиконка ответа (стрелочка влево) */
+    .reply-button::before {
+        content: "↩";
+        font-size: 13px;
     }
 
     .message-with-action:hover .reply-button {
@@ -648,12 +611,10 @@
     */
 
     .quoted-message {
-        margin-bottom: 8px;
-        padding: 7px 10px;
-
+        margin-bottom: 6px;
+        padding: 6px 10px;
         border-left: 3px solid #94a3b8;
         border-radius: 4px;
-
         background: rgba(0, 0, 0, 0.04);
     }
 
@@ -665,13 +626,12 @@
     .quoted-message-label {
         font-size: 10px;
         margin-bottom: 2px;
-        opacity: .7;
+        opacity: 0.7;
     }
 
     .quoted-message-text {
         font-size: 11px;
         line-height: 1.35;
-
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -687,14 +647,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 12px;
-
         padding: 10px 14px;
         margin-bottom: 8px;
-
         background: #f8fafc;
-
         border-left: 3px solid #6c63ff;
         border-radius: 8px;
     }
@@ -716,26 +672,20 @@
     .reply-preview-text {
         font-size: 13px;
         color: #334155;
-
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-
         max-width: 500px;
     }
 
     .cancel-reply {
         flex-shrink: 0;
-
         width: 28px;
         height: 28px;
-
         border: none;
         background: transparent;
-
         font-size: 20px;
         line-height: 1;
-
         color: #64748b;
         cursor: pointer;
     }
@@ -753,17 +703,12 @@
     .message-input {
         flex: 1;
         resize: none;
-
         border: 1px solid #e1e4eb;
         border-radius: 12px;
-
         padding: 12px 14px;
-
         font-family: inherit;
         font-size: 13px;
-
         outline: none;
-
         min-height: 46px;
     }
 
@@ -774,15 +719,11 @@
     .send-button {
         width: 46px;
         height: 46px;
-
         border: none;
         border-radius: 12px;
-
         background: #6c63ff;
         color: white;
-
         font-size: 18px;
-
         cursor: pointer;
     }
 
@@ -798,18 +739,13 @@
 
     .status-select {
         width: 100%;
-
         padding: 9px 10px;
-
         border: 1px solid #e1e4ea;
         border-radius: 9px;
-
         background: #f9fafc;
         color: #30333a;
-
         font-family: inherit;
         font-size: 12px;
-
         outline: none;
         cursor: pointer;
     }

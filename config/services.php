@@ -40,5 +40,16 @@ return [
         'base_url' => env('ZERNIO_BASE_URL', 'https://zernio.com/api/v1'),
         'webhook_secret' => env('ZERNIO_WEBHOOK_SECRET'),
     ],
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'base_url' => env(
+            'OPENROUTER_BASE_URL',
+            'https://openrouter.ai/api/v1'
+        ),
+        'model' => env(
+            'OPENROUTER_MODEL',
+            'dots-studio/dots-3-note-preview:free'
+        ),
+    ],
 
 ];
